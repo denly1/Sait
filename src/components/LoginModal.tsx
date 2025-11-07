@@ -30,8 +30,8 @@ export default function LoginModal({ onClose, onLogin }: LoginModalProps) {
   };
 
   return (
-    <div className="fixed inset-0 bg-black/90 flex items-center justify-center z-50 p-4">
-      <div className="bg-gradient-to-br from-slate-800 to-slate-900 rounded-2xl max-w-md w-full p-8 border border-amber-500/30 animate-scale-in">
+    <div className="fixed inset-0 bg-black/90 flex items-center justify-center z-50 p-4 overflow-y-auto">
+      <div className="bg-gradient-to-br from-slate-800 to-slate-900 rounded-2xl max-w-md w-full p-4 sm:p-6 lg:p-8 border border-amber-500/30 animate-scale-in my-8">
         <div className="flex justify-between items-center mb-6">
           <div>
             <h2 className="text-3xl font-bold text-amber-400">

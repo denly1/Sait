@@ -48,8 +48,8 @@ export default function OrderModal({ product, onClose }: OrderModalProps) {
   };
 
   return (
-    <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/70 backdrop-blur-sm">
-      <div className="bg-gradient-to-br from-slate-800 to-slate-900 rounded-2xl shadow-2xl w-full max-w-lg border border-slate-700 relative overflow-hidden">
+    <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/70 backdrop-blur-sm overflow-y-auto">
+      <div className="bg-gradient-to-br from-slate-800 to-slate-900 rounded-2xl shadow-2xl w-full max-w-lg border border-slate-700 relative overflow-hidden my-8">
         <div className="absolute top-0 left-0 right-0 h-1 bg-gradient-to-r from-blue-400 via-cyan-400 to-blue-500"></div>
 
         <button
@@ -59,7 +59,7 @@ export default function OrderModal({ product, onClose }: OrderModalProps) {
           <X className="w-6 h-6" />
         </button>
 
-        <div className="p-8">
+        <div className="p-4 sm:p-6 lg:p-8">
           {success ? (
             <div className="text-center py-12">
               <CheckCircle className="w-20 h-20 text-green-500 mx-auto mb-4" />

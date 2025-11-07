@@ -111,8 +111,8 @@ export default function AdminPanelEnhanced({ onClose }: AdminPanelEnhancedProps)
   }
 
   return (
-    <div className="fixed inset-0 bg-black/80 flex items-center justify-center z-50 p-4 overflow-y-auto">
-      <div className="bg-gradient-to-br from-slate-800 to-slate-900 rounded-2xl max-w-7xl w-full max-h-[95vh] overflow-y-auto border border-amber-500/30">
+    <div className="fixed inset-0 bg-black/80 flex items-start justify-center z-50 p-4 overflow-y-auto">
+      <div className="bg-gradient-to-br from-slate-800 to-slate-900 rounded-2xl max-w-7xl w-full max-h-[90vh] overflow-y-auto border border-amber-500/30 my-8">
         <div className="sticky top-0 bg-slate-900/95 backdrop-blur-sm p-6 border-b border-amber-500/30 flex justify-between items-center z-10">
           <div>
             <h2 className="text-3xl font-bold text-amber-400 flex items-center gap-2">
