@@ -68,16 +68,12 @@ export default function OrderModal({ product, onClose }: OrderModalProps) {
             </div>
           ) : (
             <>
-              <div className="flex items-start space-x-4 mb-6">
-                <div className="w-24 h-24 rounded-xl overflow-hidden flex-shrink-0">
-                  <img
-                    src={product.image_url}
-                    alt={product.name}
-                    className="w-full h-full object-cover"
-                  />
+              <div className="flex flex-col sm:flex-row items-start sm:space-x-4 mb-6">
+                <div className="w-full sm:w-24 h-24 rounded-xl bg-gradient-to-br from-blue-600 to-cyan-600 flex items-center justify-center flex-shrink-0 mb-4 sm:mb-0">
+                  <div className="text-5xl">🧪</div>
                 </div>
-                <div className="flex-1">
-                  <h3 className="text-2xl font-bold text-white mb-2">{product.name}</h3>
+                <div className="flex-1 w-full">
+                  <h3 className="text-xl sm:text-2xl font-bold text-white mb-2">{product.name}</h3>
                   <p className="text-slate-400 text-sm mb-2">{product.description}</p>
                   <div className="flex items-center space-x-2 text-sm text-slate-400">
                     <Package className="w-4 h-4" />

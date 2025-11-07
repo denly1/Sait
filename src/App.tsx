@@ -62,16 +62,16 @@ function App() {
       {showAdmin && <AdminPanelEnhanced onClose={() => setShowAdmin(false)} />}
       {showHistory && <UserHistory onClose={() => setShowHistory(false)} />}
 
-      <div className="fixed bottom-4 right-4 bg-slate-800 rounded-lg px-4 py-2 border border-amber-500/30 shadow-lg">
-        <div className="text-white text-sm">
+      <div className="fixed bottom-4 right-4 left-4 sm:left-auto bg-slate-800 rounded-lg px-3 sm:px-4 py-2 border border-amber-500/30 shadow-lg max-w-sm sm:max-w-none mx-auto sm:mx-0">
+        <div className="text-white text-xs sm:text-sm flex flex-wrap items-center justify-center sm:justify-start gap-2">
           <span className="text-amber-400 font-bold">{user.username}</span>
-          <span className="text-slate-400 mx-2">•</span>
+          <span className="text-slate-400 hidden sm:inline">•</span>
           <span className={user.role === 'admin' ? 'text-green-400' : 'text-blue-400'}>
             {user.role === 'admin' ? '👑 Админ' : '👤 Пользователь'}
           </span>
           <button
             onClick={handleLogout}
-            className="ml-3 text-red-400 hover:text-red-300 transition-colors"
+            className="text-red-400 hover:text-red-300 transition-colors font-medium"
           >
             Выйти
           </button>
