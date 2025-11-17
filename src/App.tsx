@@ -1,5 +1,6 @@
 import { useState, useEffect } from 'react';
 import Header from './components/Header';
+import { logPageView, logLogin } from './utils/analytics';
 import EscortSection from './components/EscortSection';
 import CasinoSectionNew from './components/CasinoSectionNew';
 import ProductsSection from './components/ProductsSection';
@@ -7,6 +8,9 @@ import AdminPanelEnhanced from './components/AdminPanelEnhanced';
 import UserHistory from './components/UserHistory';
 import LoginModal from './components/LoginModal';
 import WheelOfFortune from './components/WheelOfFortune';
+import SupportChat from './components/SupportChat';
+import ReviewsSection from './components/ReviewsSection';
+import LoyaltyProgram from './components/LoyaltyProgram';
 
 function App() {
   const [activeSection, setActiveSection] = useState('escort');
@@ -14,17 +18,26 @@ function App() {
   const [showHistory, setShowHistory] = useState(false);
   const [showLogin, setShowLogin] = useState(true);
   const [showWheel, setShowWheel] = useState(false);
+  const [showChat, setShowChat] = useState(false);
+  const [showReviews, setShowReviews] = useState(false);
+  const [showLoyalty, setShowLoyalty] = useState(false);
   const [user, setUser] = useState<{ username: string; role: 'admin' | 'user' } | null>(null);
 
   useEffect(() => {
     console.log('App mounted successfully');
     console.log('Active section:', activeSection);
     console.log('User:', user);
+    
+    // Логируем просмотр страницы
+    logPageView(activeSection);
   }, [activeSection, user]);
 
   const handleLogin = (username: string, role: 'admin' | 'user') => {
     setUser({ username, role });
     setShowLogin(false);
+    
+    // Логируем вход пользователя
+    logLogin(username, role);
   };
 
   const handleLogout = () => {
@@ -65,6 +78,34 @@ function App() {
       {showAdmin && <AdminPanelEnhanced onClose={() => setShowAdmin(false)} />}
       {showHistory && <UserHistory onClose={() => setShowHistory(false)} />}
       {showWheel && <WheelOfFortune onClose={() => setShowWheel(false)} />}
+      {showChat && <SupportChat onClose={() => setShowChat(false)} />}
+      {showReviews && <ReviewsSection onClose={() => setShowReviews(false)} />}
+      {showLoyalty && <LoyaltyProgram onClose={() => setShowLoyalty(false)} />}
+
+      {/* Плавающие кнопки */}
+      <div className="fixed bottom-20 sm:bottom-24 right-3 sm:right-4 z-40 flex flex-col gap-3">
+        <button
+          onClick={() => setShowChat(true)}
+          className="bg-gradient-to-r from-blue-500 to-cyan-500 text-white p-4 rounded-full shadow-2xl hover:scale-110 transition-all animate-bounce"
+          title="Чат поддержки"
+        >
+          💬
+        </button>
+        <button
+          onClick={() => setShowReviews(true)}
+          className="bg-gradient-to-r from-purple-500 to-pink-500 text-white p-4 rounded-full shadow-2xl hover:scale-110 transition-all"
+          title="Отзывы"
+        >
+          ⭐
+        </button>
+        <button
+          onClick={() => setShowLoyalty(true)}
+          className="bg-gradient-to-r from-amber-500 to-orange-500 text-white p-4 rounded-full shadow-2xl hover:scale-110 transition-all"
+          title="Программа лояльности"
+        >
+          🎁
+        </button>
+      </div>
 
       <div className="fixed bottom-3 sm:bottom-4 right-3 sm:right-4 left-3 sm:left-auto bg-slate-800/95 backdrop-blur-sm rounded-xl px-3 sm:px-4 py-2.5 sm:py-3 border border-amber-500/30 shadow-2xl max-w-sm sm:max-w-none mx-auto sm:mx-0 z-40">
         <div className="text-white text-xs sm:text-sm flex flex-wrap items-center justify-center sm:justify-start gap-2 sm:gap-3">
