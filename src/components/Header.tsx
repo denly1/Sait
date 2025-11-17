@@ -1,14 +1,15 @@
 import { useState } from 'react';
-import { Sparkles, Settings, History, Menu, X } from 'lucide-react';
+import { Sparkles, Settings, History, Menu, X, Trophy } from 'lucide-react';
 
 interface HeaderProps {
   activeSection: string;
   onSectionChange: (section: string) => void;
   onAdminClick?: () => void;
   onHistoryClick?: () => void;
+  onWheelClick?: () => void;
 }
 
-export default function Header({ activeSection, onSectionChange, onAdminClick, onHistoryClick }: HeaderProps) {
+export default function Header({ activeSection, onSectionChange, onAdminClick, onHistoryClick, onWheelClick }: HeaderProps) {
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
   const sections = ['escort', 'casino', 'products'];
 
@@ -31,6 +32,15 @@ export default function Header({ activeSection, onSectionChange, onAdminClick, o
 
           {/* Desktop Navigation */}
           <nav className="hidden md:flex space-x-2 items-center">
+            {onWheelClick && (
+              <button
+                onClick={onWheelClick}
+                className="p-2.5 rounded-lg bg-gradient-to-r from-amber-500 to-orange-500 text-white hover:from-amber-600 hover:to-orange-600 transition-all duration-300 hover:shadow-lg hover:shadow-amber-500/50 animate-pulse"
+                title="Колесо Фортуны"
+              >
+                <Trophy className="w-5 h-5" />
+              </button>
+            )}
             {sections.map((section) => (
               <button
                 key={section}
@@ -94,6 +104,17 @@ export default function Header({ activeSection, onSectionChange, onAdminClick, o
                   {section === 'products' && '🛍️ Магазин'}
                 </button>
               ))}
+              <div className="flex space-x-2.5 pt-2">
+                {onWheelClick && (
+                  <button
+                    onClick={() => { onWheelClick(); setMobileMenuOpen(false); }}
+                    className="flex-1 px-4 py-4 rounded-xl bg-gradient-to-r from-amber-500 to-orange-500 text-white hover:from-amber-600 hover:to-orange-600 transition-all duration-300 flex items-center justify-center space-x-2 active:scale-98 font-medium shadow-lg"
+                  >
+                    <Trophy className="w-5 h-5" />
+                    <span className="text-base">Колесо</span>
+                  </button>
+                )}
+              </div>
               <div className="flex space-x-2.5 pt-2">
                 {onHistoryClick && (
                   <button

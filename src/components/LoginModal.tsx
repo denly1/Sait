@@ -95,12 +95,6 @@ export default function LoginModal({ onClose, onLogin }: LoginModalProps) {
             </div>
           )}
 
-          <div className="bg-blue-500/20 border border-blue-500/50 rounded-lg p-3 text-blue-300 text-sm">
-            <strong>Тестовые данные:</strong><br />
-            Админ: admin / admin123<br />
-            Пользователь: любой логин / мин. 4 символа
-          </div>
-
           <button
             type="submit"
             className="w-full py-3 bg-gradient-to-r from-amber-500 to-amber-600 text-white rounded-lg font-bold text-lg hover:from-amber-600 hover:to-amber-700 transition-all shadow-lg hover:shadow-amber-500/50"

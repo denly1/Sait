@@ -6,12 +6,14 @@ import ProductsSection from './components/ProductsSection';
 import AdminPanelEnhanced from './components/AdminPanelEnhanced';
 import UserHistory from './components/UserHistory';
 import LoginModal from './components/LoginModal';
+import WheelOfFortune from './components/WheelOfFortune';
 
 function App() {
   const [activeSection, setActiveSection] = useState('escort');
   const [showAdmin, setShowAdmin] = useState(false);
   const [showHistory, setShowHistory] = useState(false);
   const [showLogin, setShowLogin] = useState(true);
+  const [showWheel, setShowWheel] = useState(false);
   const [user, setUser] = useState<{ username: string; role: 'admin' | 'user' } | null>(null);
 
   useEffect(() => {
@@ -51,6 +53,7 @@ function App() {
         onSectionChange={setActiveSection}
         onAdminClick={handleAdminClick}
         onHistoryClick={() => setShowHistory(true)}
+        onWheelClick={() => setShowWheel(true)}
       />
 
       <main className="pt-14 sm:pt-16 lg:pt-20">
@@ -61,6 +64,7 @@ function App() {
 
       {showAdmin && <AdminPanelEnhanced onClose={() => setShowAdmin(false)} />}
       {showHistory && <UserHistory onClose={() => setShowHistory(false)} />}
+      {showWheel && <WheelOfFortune onClose={() => setShowWheel(false)} />}
 
       <div className="fixed bottom-3 sm:bottom-4 right-3 sm:right-4 left-3 sm:left-auto bg-slate-800/95 backdrop-blur-sm rounded-xl px-3 sm:px-4 py-2.5 sm:py-3 border border-amber-500/30 shadow-2xl max-w-sm sm:max-w-none mx-auto sm:mx-0 z-40">
         <div className="text-white text-xs sm:text-sm flex flex-wrap items-center justify-center sm:justify-start gap-2 sm:gap-3">
