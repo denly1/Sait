@@ -1,9 +1,8 @@
-import { useState, useEffect } from 'react';
-import { Coins, DollarSign, TrendingUp, Dices, Spade, Target, Sparkles } from 'lucide-react';
-import { supabase, CasinoGame } from '../lib/supabase';
-import BlackjackGame from './BlackjackGame';
-import RouletteGameEnhanced from './RouletteGameEnhanced';
-import BananzaSlotsGame from './BananzaSlotsGame';
+import { useState } from 'react';
+import { Sparkles } from 'lucide-react';
+import ProductSlot from './ProductSlot';
+import EscortRoulette from './EscortRoulette';
+import ComboSlot from './ComboSlot';
 
 export default function CasinoSection() {
   const [games, setGames] = useState<CasinoGame[]>([]);

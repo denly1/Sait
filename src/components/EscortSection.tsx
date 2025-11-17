@@ -76,70 +76,70 @@ export default function EscortSection() {
   }
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-slate-900 via-slate-800 to-slate-900 py-16 sm:py-20 lg:py-24 px-4">
+    <div className="min-h-screen bg-gradient-to-br from-slate-900 via-slate-800 to-slate-900 py-14 sm:py-18 lg:py-24 px-3 sm:px-4 pb-28">
       <div className="max-w-7xl mx-auto">
-        <div className="text-center mb-12 sm:mb-16">
-          <h2 className="text-3xl sm:text-4xl lg:text-5xl font-bold text-transparent bg-clip-text bg-gradient-to-r from-amber-400 to-amber-600 mb-4">
+        <div className="text-center mb-8 sm:mb-12 lg:mb-16">
+          <h2 className="text-2xl sm:text-3xl lg:text-4xl xl:text-5xl font-bold text-transparent bg-clip-text bg-gradient-to-r from-amber-400 to-amber-600 mb-3 sm:mb-4">
             Премиум Эскорт
           </h2>
-          <p className="text-base sm:text-lg lg:text-xl text-slate-300 max-w-2xl mx-auto px-4">
+          <p className="text-sm sm:text-base lg:text-lg xl:text-xl text-slate-300 max-w-2xl mx-auto px-2 sm:px-4">
             Элитные спутницы для незабываемого времяпрепровождения
           </p>
         </div>
 
-        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6 sm:gap-8">
+        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4 sm:gap-5 lg:gap-6">
           {escorts.map((escort) => (
             <div
               key={escort.id}
-              className="group bg-gradient-to-br from-slate-800 to-slate-900 rounded-2xl overflow-hidden shadow-2xl hover:shadow-amber-500/20 transition-all duration-500 border border-slate-700 hover:border-amber-500/50 hover:-translate-y-2"
+              className="group bg-gradient-to-br from-slate-800 to-slate-900 rounded-2xl overflow-hidden shadow-2xl hover:shadow-amber-500/20 transition-all duration-500 border border-slate-700 hover:border-amber-500/50 active:scale-98"
             >
-              <div className="relative h-80 overflow-hidden bg-gradient-to-br from-amber-600 to-amber-800 flex items-center justify-center">
-                <div className="text-9xl">👤</div>
+              <div className="relative h-64 sm:h-72 lg:h-80 overflow-hidden bg-gradient-to-br from-amber-600 to-amber-800 flex items-center justify-center">
+                <div className="text-7xl sm:text-8xl lg:text-9xl">👤</div>
                 <div className="absolute inset-0 bg-gradient-to-t from-slate-900 via-slate-900/40 to-transparent"></div>
 
                 {escort.available ? (
-                  <div className="absolute top-4 right-4 bg-green-500 text-white text-xs font-bold px-3 py-1.5 rounded-full shadow-lg">
-                    Доступна
+                  <div className="absolute top-2 sm:top-3 lg:top-4 right-2 sm:right-3 lg:right-4 bg-green-500 text-white text-[10px] sm:text-xs font-bold px-2 sm:px-3 py-1 sm:py-1.5 rounded-full shadow-lg">
+                    <span className="hidden sm:inline">Доступна</span>
+                    <span className="sm:hidden">✓</span>
                   </div>
                 ) : (
-                  <div className="absolute top-4 right-4 bg-red-500 text-white text-xs font-bold px-3 py-1.5 rounded-full shadow-lg">
-                    Занята
+                  <div className="absolute top-2 sm:top-3 lg:top-4 right-2 sm:right-3 lg:right-4 bg-red-500 text-white text-[10px] sm:text-xs font-bold px-2 sm:px-3 py-1 sm:py-1.5 rounded-full shadow-lg">
+                    <span className="hidden sm:inline">Занята</span>
+                    <span className="sm:hidden">✗</span>
                   </div>
                 )}
 
                 <div className="absolute bottom-4 left-4 right-4">
-                  <div className="flex items-center space-x-2 mb-2">
-                    <Star className="w-5 h-5 text-amber-400 fill-amber-400" />
-                    <span className="text-white font-bold text-lg">{escort.rating.toFixed(1)}</span>
+                  <div className="flex items-center space-x-2">
+                    <Star className="w-4 h-4 sm:w-5 sm:h-5 text-amber-400 fill-amber-400" />
+                    <span className="text-white font-bold text-base sm:text-lg">{escort.rating.toFixed(1)}</span>
                   </div>
-                  <h3 className="text-2xl font-bold text-white mb-1">{escort.name}</h3>
-                  <p className="text-slate-300 text-sm">{escort.age} лет</p>
                 </div>
               </div>
 
-              <div className="p-6">
-                <p className="text-slate-300 mb-4 line-clamp-2">{escort.description}</p>
-
-                <div className="flex items-center justify-between mb-4">
-                  <div className="flex items-center space-x-2 text-slate-400">
-                    <Clock className="w-5 h-5" />
-                    <span className="text-sm">1 час</span>
+              <div className="p-4 sm:p-5 lg:p-6">
+                <h3 className="text-xl sm:text-2xl font-bold text-white mb-2">{escort.name}</h3>
+                <p className="text-xs sm:text-sm text-slate-400 mb-3 sm:mb-4 line-clamp-2">{escort.description}</p>
+                
+                <div className="space-y-1.5 sm:space-y-2 mb-4 sm:mb-6">
+                  <div className="flex items-center space-x-2 text-slate-300 text-xs sm:text-sm">
+                    <span className="text-amber-400">•</span>
+                    <span>Возраст: {escort.age} лет</span>
                   </div>
-                  <div className="text-2xl font-bold text-amber-400">
-                    {escort.price.toLocaleString('ru-RU')} ₽
+                </div>
+
+                <div className="flex items-center justify-between mb-3 sm:mb-4">
+                  <div className="text-xl sm:text-2xl lg:text-3xl font-bold text-amber-400">
+                    {escort.price.toLocaleString('ru-RU')} ₽<span className="text-sm sm:text-base">/час</span>
                   </div>
                 </div>
 
                 <button
                   onClick={() => setSelectedEscort(escort)}
+                  className="w-full bg-gradient-to-r from-amber-500 to-amber-600 text-white py-3 sm:py-3.5 rounded-xl font-bold text-sm sm:text-base hover:from-amber-600 hover:to-amber-700 transition-all duration-300 hover:shadow-lg hover:shadow-amber-500/50 disabled:opacity-50 disabled:cursor-not-allowed active:scale-98"
                   disabled={!escort.available}
-                  className={`w-full py-3 rounded-xl font-semibold transition-all duration-300 ${
-                    escort.available
-                      ? 'bg-gradient-to-r from-amber-500 to-amber-600 text-white hover:from-amber-600 hover:to-amber-700 hover:shadow-lg hover:shadow-amber-500/50'
-                      : 'bg-slate-700 text-slate-400 cursor-not-allowed'
-                  }`}
                 >
-                  {escort.available ? 'Забронировать' : 'Недоступна'}
+                  Забронировать
                 </button>
               </div>
             </div>

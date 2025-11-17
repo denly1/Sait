@@ -1,5 +1,5 @@
 import { useState, useEffect } from 'react';
-import { X, TrendingUp, Users, ShoppingBag, DollarSign, Calendar, BarChart3, Plus, Edit, Trash2, Download, Save } from 'lucide-react';
+import { X, Users, ShoppingBag, DollarSign, Calendar, BarChart3, Plus, Edit, Trash2, Download } from 'lucide-react';
 import { supabase } from '../lib/supabase';
 
 interface AdminPanelEnhancedProps {
@@ -18,7 +18,6 @@ export default function AdminPanelEnhanced({ onClose }: AdminPanelEnhancedProps)
     totalRevenue: 0,
     activeEscorts: 0,
   });
-  const [editingItem, setEditingItem] = useState<any>(null);
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
