@@ -1,6 +1,6 @@
 import { useState, useEffect } from 'react';
-import { Star, Phone, Calendar, Clock } from 'lucide-react';
-import { supabase, Escort } from '../lib/supabase';
+import { Star } from 'lucide-react';
+import { storage, Escort } from '../lib/localStorage';
 import BookingModal from './BookingModal';
 
 export default function EscortSection() {
@@ -17,108 +17,11 @@ export default function EscortSection() {
   const loadEscorts = async () => {
     try {
       console.log('Loading escorts...');
-      const { data, error } = await supabase
-        .from('escorts')
-        .select('*')
-        .eq('available', true)
-        .order('rating', { ascending: false });
-
-      if (error) throw error;
-      
-      // Если база пуста, используем тестовые данные
-      if (!data || data.length === 0) {
-        const testEscorts = [
-          {
-            id: '1',
-            name: 'Анастасия',
-            age: 23,
-            description: 'Элегантная и утонченная спутница для особых мероприятий',
-            price: 5000,
-            rating: 4.9,
-            available: true,
-            image_url: ''
-          },
-          {
-            id: '2',
-            name: 'Виктория',
-            age: 25,
-            description: 'Профессиональная модель с безупречными манерами',
-            price: 6000,
-            rating: 4.8,
-            available: true,
-            image_url: ''
-          },
-          {
-            id: '3',
-            name: 'Екатерина',
-            age: 22,
-            description: 'Яркая и общительная, создаст незабываемую атмосферу',
-            price: 7000,
-            rating: 5.0,
-            available: true,
-            image_url: ''
-          },
-          {
-            id: '4',
-            name: 'Мария',
-            age: 24,
-            description: 'Интеллигентная собеседница для деловых встреч',
-            price: 8000,
-            rating: 4.7,
-            available: false,
-            image_url: ''
-          },
-          {
-            id: '5',
-            name: 'Ольга VIP',
-            age: 26,
-            description: 'Премиум-класс. Эксклюзивное сопровождение',
-            price: 12000,
-            rating: 5.0,
-            available: true,
-            image_url: ''
-          },
-        ];
-        setEscorts(testEscorts as any);
-      } else {
-        setEscorts(data || []);
-      }
+      const data = storage.getEscorts();
+      setEscorts(data);
     } catch (error) {
       console.error('Error loading escorts:', error);
-      // В случае ошибки также используем тестовые данные
-      const testEscorts = [
-        {
-          id: '1',
-          name: 'Анастасия',
-          age: 23,
-          description: 'Элегантная и утонченная спутница для особых мероприятий',
-          price: 5000,
-          rating: 4.9,
-          available: true,
-          image_url: ''
-        },
-        {
-          id: '2',
-          name: 'Виктория',
-          age: 25,
-          description: 'Профессиональная модель с безупречными манерами',
-          price: 6000,
-          rating: 4.8,
-          available: true,
-          image_url: ''
-        },
-        {
-          id: '3',
-          name: 'Екатерина',
-          age: 22,
-          description: 'Яркая и общительная, создаст незабываемую атмосферу',
-          price: 7000,
-          rating: 5.0,
-          available: true,
-          image_url: ''
-        },
-      ];
-      setEscorts(testEscorts as any);
+      setError('Ошибка загрузки данных');
     } finally {
       setLoading(false);
     }

@@ -1,4 +1,4 @@
-import { supabase } from '../lib/supabase';
+import { storage } from '../lib/localStorage';
 
 export interface AnalyticsEvent {
   id?: string;
@@ -39,13 +39,7 @@ export async function logEvent(eventType: string, metadata?: any) {
       created_at: new Date().toISOString()
     };
 
-    const { error } = await supabase
-      .from('analytics_events')
-      .insert(event);
-
-    if (error) {
-      console.error('Error logging event:', error);
-    }
+    storage.logEvent(event);
   } catch (error) {
     console.error('Error in logEvent:', error);
   }
@@ -72,25 +66,9 @@ export async function logLogin(username: string, role: string) {
 }
 
 // Получить статистику для админа
-export async function getAnalytics(startDate?: string, endDate?: string) {
+export async function getAnalytics() {
   try {
-    let query = supabase
-      .from('analytics_events')
-      .select('*')
-      .order('created_at', { ascending: false });
-
-    if (startDate) {
-      query = query.gte('created_at', startDate);
-    }
-    if (endDate) {
-      query = query.lte('created_at', endDate);
-    }
-
-    const { data, error } = await query.limit(1000);
-
-    if (error) throw error;
-
-    return data || [];
+    return storage.getAnalytics();
   } catch (error) {
     console.error('Error getting analytics:', error);
     return [];
@@ -100,18 +78,16 @@ export async function getAnalytics(startDate?: string, endDate?: string) {
 // Получить уникальных посетителей
 export async function getUniqueVisitors(days: number = 7) {
   try {
+    const data = storage.getAnalytics();
     const startDate = new Date();
     startDate.setDate(startDate.getDate() - days);
 
-    const { data, error } = await supabase
-      .from('analytics_events')
-      .select('ip_address')
-      .gte('created_at', startDate.toISOString())
-      .eq('event_type', 'page_view');
+    const filtered = data.filter((event: any) => 
+      event.event_type === 'page_view' && 
+      new Date(event.created_at) >= startDate
+    );
 
-    if (error) throw error;
-
-    const uniqueIPs = new Set(data?.map(event => event.ip_address) || []);
+    const uniqueIPs = new Set(filtered.map((event: any) => event.ip_address));
     return uniqueIPs.size;
   } catch (error) {
     console.error('Error getting unique visitors:', error);
@@ -122,19 +98,17 @@ export async function getUniqueVisitors(days: number = 7) {
 // Получить популярные страницы
 export async function getPopularPages(days: number = 7) {
   try {
+    const data = storage.getAnalytics();
     const startDate = new Date();
     startDate.setDate(startDate.getDate() - days);
 
-    const { data, error } = await supabase
-      .from('analytics_events')
-      .select('metadata')
-      .eq('event_type', 'page_view')
-      .gte('created_at', startDate.toISOString());
-
-    if (error) throw error;
+    const filtered = data.filter((event: any) => 
+      event.event_type === 'page_view' && 
+      new Date(event.created_at) >= startDate
+    );
 
     const pageCounts: { [key: string]: number } = {};
-    data?.forEach(event => {
+    filtered.forEach((event: any) => {
       const page = event.metadata?.page || 'unknown';
       pageCounts[page] = (pageCounts[page] || 0) + 1;
     });
