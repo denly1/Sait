@@ -1,6 +1,6 @@
 import { useState } from 'react';
 import { X, Calendar, Clock, Phone, User, CheckCircle } from 'lucide-react';
-import { supabase, Escort } from '../lib/supabase';
+import { supabase, Escort } from '../lib/localStorage';
 
 interface BookingModalProps {
   escort: Escort;

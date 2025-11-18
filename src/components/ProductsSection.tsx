@@ -1,6 +1,6 @@
 import { useState, useEffect } from 'react';
 import { Package, ShoppingCart, CheckCircle2 } from 'lucide-react';
-import { Product, supabase } from '../lib/supabase';
+import { Product, supabase } from '../lib/localStorage';
 import Cart from './Cart';
 import CheckoutModal, { OrderData } from './CheckoutModal';
 import { allProducts, categories as productCategories } from '../data/products';

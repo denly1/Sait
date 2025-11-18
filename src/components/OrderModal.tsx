@@ -1,6 +1,6 @@
 import { useState } from 'react';
 import { X, Phone, User, ShoppingCart, CheckCircle, Package } from 'lucide-react';
-import { supabase, Product } from '../lib/supabase';
+import { supabase, Product } from '../lib/localStorage';
 
 interface OrderModalProps {
   product: Product;

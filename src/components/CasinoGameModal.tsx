@@ -1,6 +1,6 @@
 import { useState } from 'react';
 import { X, Coins, DollarSign, Play } from 'lucide-react';
-import { CasinoGame } from '../lib/supabase';
+import { CasinoGame } from '../lib/localStorage';
 
 interface CasinoGameModalProps {
   game: CasinoGame;

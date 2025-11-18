@@ -1,6 +1,6 @@
 import { useState, useEffect } from 'react';
 import { X, Users, ShoppingBag, DollarSign, Calendar, BarChart3, Plus, Edit, Trash2, Download } from 'lucide-react';
-import { supabase } from '../lib/supabase';
+import { supabase } from '../lib/localStorage';
 
 interface AdminPanelEnhancedProps {
   onClose: () => void;

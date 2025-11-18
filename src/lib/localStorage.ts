@@ -137,6 +137,11 @@ class LocalStorage {
     ]);
   }
 
+  deleteEscort(id: string): void {
+    const escorts = this.getEscorts().filter(e => e.id !== id);
+    this.setItem('escorts', escorts);
+  }
+
   // Bookings
   getBookings(): Booking[] {
     return this.getItem('bookings', []);
@@ -168,7 +173,7 @@ class LocalStorage {
       created_at: new Date().toISOString()
     };
     orders.push(newOrder);
-    this.setItem('orders', newOrder);
+    this.setItem('orders', orders);
   }
 
   // Analytics
@@ -325,6 +330,21 @@ export const supabase = {
         callback({ data, error: null });
         return Promise.resolve({ data, error: null });
       }
+    }),
+    delete: () => ({
+      eq: (column: string, value: any) => ({
+        then: (callback: (result: any) => void) => {
+          if (table === 'escorts') {
+            storage.deleteEscort(value);
+          } else if (table === 'orders') {
+            const orders = storage.getOrders().filter(o => (o as any)[column] !== value);
+            (storage as any).setItem('orders', orders);
+          }
+
+          callback({ data: null, error: null });
+          return Promise.resolve({ data: null, error: null });
+        }
+      })
     })
   })
 };
