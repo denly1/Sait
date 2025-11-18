@@ -1,6 +1,8 @@
 import { useState } from 'react';
-import { X, Calendar, Clock, Phone, User, CheckCircle } from 'lucide-react';
-import { supabase, Escort } from '../lib/supabase';
+import { X, Calendar, Clock, User, Phone, CheckCircle } from 'lucide-react';
+import { storage, Escort } from '../lib/localStorage';
+import { validateForm, validationSchemas, formatValidationErrors } from '../utils/validation';
+import { showSuccess, showError } from '../utils/errorHandling';
 
 interface BookingModalProps {
   escort: Escort;
@@ -11,47 +13,60 @@ export default function BookingModal({ escort, onClose }: BookingModalProps) {
   const [formData, setFormData] = useState({
     customer_name: '',
     customer_phone: '',
+    customer_email: '',
     booking_date: '',
     duration: 1,
   });
   const [loading, setLoading] = useState(false);
   const [success, setSuccess] = useState(false);
+  const [errors, setErrors] = useState<Record<string, string>>({});
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     setLoading(true);
+    setErrors({});
 
     try {
+      // Валидация формы
+      const validation = validateForm(formData, validationSchemas.booking);
+      
+      if (!validation.isValid) {
+        setErrors(formatValidationErrors(validation.errors));
+        showError('Пожалуйста, исправьте ошибки в форме');
+        setLoading(false);
+        return;
+      }
+
       const total_price = escort.price * formData.duration;
 
-      const { error } = await supabase.from('bookings').insert([
-        {
-          escort_id: escort.id,
-          customer_name: formData.customer_name,
-          customer_phone: formData.customer_phone,
-          booking_date: formData.booking_date,
-          duration: formData.duration,
-          total_price,
-        },
-      ]);
-
-      if (error) throw error;
+      // Сохраняем бронирование в localStorage
+      storage.addBooking({
+        escort_id: escort.id,
+        customer_name: formData.customer_name,
+        customer_phone: formData.customer_phone,
+        customer_email: formData.customer_email,
+        booking_date: formData.booking_date,
+        duration: formData.duration,
+        total_price,
+      });
 
       setSuccess(true);
+      showSuccess('Бронирование создано успешно!', 'Успех');
+      
       setTimeout(() => {
         onClose();
       }, 2000);
     } catch (error) {
       console.error('Error creating booking:', error);
-      alert('Ошибка при создании брони. Попробуйте снова.');
+      showError('Ошибка при создании брони. Попробуйте снова.');
     } finally {
       setLoading(false);
     }
   };
 
   return (
-    <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/70 backdrop-blur-sm overflow-y-auto">
-      <div className="bg-gradient-to-br from-slate-800 to-slate-900 rounded-2xl shadow-2xl w-full max-w-lg border border-slate-700 relative overflow-hidden my-8">
+    <div className="fixed inset-0 z-50 flex items-start justify-center p-2 sm:p-4 bg-black/70 backdrop-blur-sm overflow-y-auto">
+      <div className="bg-gradient-to-br from-slate-800 to-slate-900 rounded-2xl shadow-2xl w-full max-w-lg border border-slate-700 relative overflow-hidden my-2 sm:my-8 animate-slide-up">
         <div className="absolute top-0 left-0 right-0 h-1 bg-gradient-to-r from-amber-400 via-amber-500 to-amber-600"></div>
 
         <button
@@ -85,9 +100,14 @@ export default function BookingModal({ escort, onClose }: BookingModalProps) {
                     required
                     value={formData.customer_name}
                     onChange={(e) => setFormData({ ...formData, customer_name: e.target.value })}
-                    className="w-full px-4 py-3 bg-slate-900/50 border border-slate-700 rounded-xl text-white focus:outline-none focus:border-amber-500 transition-colors"
+                    className={`w-full px-4 py-3 bg-slate-900/50 border rounded-xl text-white focus:outline-none transition-colors ${
+                      errors.customer_name ? 'border-red-500 focus:border-red-400' : 'border-slate-700 focus:border-amber-500'
+                    }`}
                     placeholder="Введите имя"
                   />
+                  {errors.customer_name && (
+                    <p className="mt-1 text-sm text-red-400">{errors.customer_name}</p>
+                  )}
                 </div>
 
                 <div>
@@ -100,9 +120,33 @@ export default function BookingModal({ escort, onClose }: BookingModalProps) {
                     required
                     value={formData.customer_phone}
                     onChange={(e) => setFormData({ ...formData, customer_phone: e.target.value })}
-                    className="w-full px-4 py-3 bg-slate-900/50 border border-slate-700 rounded-xl text-white focus:outline-none focus:border-amber-500 transition-colors"
-                    placeholder="+7 (___) ___-__-__"
+                    className={`w-full px-4 py-3 bg-slate-900/50 border rounded-xl text-white focus:outline-none transition-colors ${
+                      errors.customer_phone ? 'border-red-500 focus:border-red-400' : 'border-slate-700 focus:border-amber-500'
+                    }`}
+                    placeholder="+7 (999) 123-45-67"
                   />
+                  {errors.customer_phone && (
+                    <p className="mt-1 text-sm text-red-400">{errors.customer_phone}</p>
+                  )}
+                </div>
+
+                <div>
+                  <label className="block text-slate-300 mb-2 flex items-center space-x-2">
+                    <User className="w-4 h-4" />
+                    <span>Email (необязательно)</span>
+                  </label>
+                  <input
+                    type="email"
+                    value={formData.customer_email}
+                    onChange={(e) => setFormData({ ...formData, customer_email: e.target.value })}
+                    className={`w-full px-4 py-3 bg-slate-900/50 border rounded-xl text-white focus:outline-none transition-colors ${
+                      errors.customer_email ? 'border-red-500 focus:border-red-400' : 'border-slate-700 focus:border-amber-500'
+                    }`}
+                    placeholder="example@email.com"
+                  />
+                  {errors.customer_email && (
+                    <p className="mt-1 text-sm text-red-400">{errors.customer_email}</p>
+                  )}
                 </div>
 
                 <div>
@@ -115,8 +159,13 @@ export default function BookingModal({ escort, onClose }: BookingModalProps) {
                     required
                     value={formData.booking_date}
                     onChange={(e) => setFormData({ ...formData, booking_date: e.target.value })}
-                    className="w-full px-4 py-3 bg-slate-900/50 border border-slate-700 rounded-xl text-white focus:outline-none focus:border-amber-500 transition-colors"
+                    className={`w-full px-4 py-3 bg-slate-900/50 border rounded-xl text-white focus:outline-none transition-colors ${
+                      errors.booking_date ? 'border-red-500 focus:border-red-400' : 'border-slate-700 focus:border-amber-500'
+                    }`}
                   />
+                  {errors.booking_date && (
+                    <p className="mt-1 text-sm text-red-400">{errors.booking_date}</p>
+                  )}
                 </div>
 
                 <div>
@@ -127,14 +176,19 @@ export default function BookingModal({ escort, onClose }: BookingModalProps) {
                   <select
                     value={formData.duration}
                     onChange={(e) => setFormData({ ...formData, duration: Number(e.target.value) })}
-                    className="w-full px-4 py-3 bg-slate-900/50 border border-slate-700 rounded-xl text-white focus:outline-none focus:border-amber-500 transition-colors"
+                    className={`w-full px-4 py-3 bg-slate-900/50 border rounded-xl text-white focus:outline-none transition-colors ${
+                      errors.duration ? 'border-red-500 focus:border-red-400' : 'border-slate-700 focus:border-amber-500'
+                    }`}
                   >
-                    {[1, 2, 3, 4, 6, 8, 12, 24].map((hours) => (
+                    {[0.5, 1, 2, 3, 4, 6, 8, 12, 24].map((hours) => (
                       <option key={hours} value={hours}>
-                        {hours} {hours === 1 ? 'час' : hours < 5 ? 'часа' : 'часов'}
+                        {hours} {hours === 1 ? 'час' : hours < 1 ? 'часа' : hours < 5 ? 'часа' : 'часов'}
                       </option>
                     ))}
                   </select>
+                  {errors.duration && (
+                    <p className="mt-1 text-sm text-red-400">{errors.duration}</p>
+                  )}
                 </div>
 
                 <div className="bg-slate-900/50 rounded-xl p-4 border border-slate-700">
@@ -149,9 +203,16 @@ export default function BookingModal({ escort, onClose }: BookingModalProps) {
                 <button
                   type="submit"
                   disabled={loading}
-                  className="w-full py-4 bg-gradient-to-r from-amber-500 to-amber-600 text-white font-bold rounded-xl hover:from-amber-600 hover:to-amber-700 transition-all duration-300 hover:shadow-lg hover:shadow-amber-500/50 disabled:opacity-50 disabled:cursor-not-allowed"
+                  className="w-full py-3 sm:py-4 bg-gradient-to-r from-amber-500 to-amber-600 text-white font-bold rounded-xl hover:from-amber-600 hover:to-amber-700 transition-all duration-300 hover:shadow-lg hover:shadow-amber-500/50 disabled:opacity-50 disabled:cursor-not-allowed active:scale-98 text-sm sm:text-base"
                 >
-                  {loading ? 'Обработка...' : 'Подтвердить бронирование'}
+                  {loading ? (
+                    <div className="flex items-center justify-center gap-2">
+                      <div className="w-4 h-4 border-2 border-white border-t-transparent rounded-full animate-spin"></div>
+                      Обработка...
+                    </div>
+                  ) : (
+                    'Подтвердить бронирование'
+                  )}
                 </button>
               </form>
             </>

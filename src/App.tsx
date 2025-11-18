@@ -11,6 +11,8 @@ import WheelOfFortune from './components/WheelOfFortune';
 import SupportChat from './components/SupportChat';
 import ReviewsSection from './components/ReviewsSection';
 import LoyaltyProgram from './components/LoyaltyProgram';
+import NotificationSystem, { NotificationTestPanel } from './components/NotificationSystem';
+import { showSuccess } from './utils/errorHandling';
 
 function App() {
   const [activeSection, setActiveSection] = useState('escort');
@@ -38,6 +40,9 @@ function App() {
     
     // Логируем вход пользователя
     logLogin(username, role);
+    
+    // Показываем уведомление об успешном входе
+    showSuccess(`Добро пожаловать, ${username}!`, 'Вход выполнен');
   };
 
   const handleLogout = () => {
@@ -75,12 +80,14 @@ function App() {
         {activeSection === 'products' && <ProductsSection />}
       </main>
 
+      {/* Модальные окна */}
       {showAdmin && <AdminPanelEnhanced onClose={() => setShowAdmin(false)} />}
       {showHistory && <UserHistory onClose={() => setShowHistory(false)} />}
       {showWheel && <WheelOfFortune onClose={() => setShowWheel(false)} />}
       {showChat && <SupportChat onClose={() => setShowChat(false)} />}
       {showReviews && <ReviewsSection onClose={() => setShowReviews(false)} />}
       {showLoyalty && <LoyaltyProgram onClose={() => setShowLoyalty(false)} />}
+      {showLogin && <LoginModal onLogin={handleLogin} onClose={() => setShowLogin(false)} />}
 
       {/* Плавающие кнопки */}
       <div className="fixed bottom-20 sm:bottom-24 right-3 sm:right-4 z-40 flex flex-col gap-3">
@@ -122,6 +129,12 @@ function App() {
           </button>
         </div>
       </div>
+
+      {/* Система уведомлений v2.0 - поверх всех элементов */}
+      <NotificationSystem />
+      
+      {/* Панель тестирования уведомлений (только в development) */}
+      <NotificationTestPanel />
     </div>
   );
 }

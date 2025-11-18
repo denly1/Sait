@@ -1,51 +1,56 @@
 import { useState } from 'react';
-import { X, Receipt, Phone, MapPin, User, Check } from 'lucide-react';
-
-interface CartItem {
-  id: string;
-  name: string;
-  price: number;
-  quantity: number;
-  emoji?: string;
-}
+import { X, Receipt, Phone, MapPin, User, Check, Mail } from 'lucide-react';
+import { OrderItem } from '../lib/localStorage';
 
 interface CheckoutModalProps {
-  items: CartItem[];
+  items: OrderItem[];
   total: number;
   onClose: () => void;
-  onConfirm: (orderData: OrderData) => void;
+  onConfirm: (orderData: OrderFormData) => void;
 }
 
-export interface OrderData {
-  name: string;
-  phone: string;
-  address: string;
-  comment: string;
-  items: CartItem[];
-  total: number;
+export interface OrderFormData {
+  customer_name: string;
+  customer_phone: string;
+  customer_email?: string;
+  customer_address: string;
+  customer_comment: string;
+  items: OrderItem[];
+  total_price: number;
+  type: 'delivery' | 'pickup';
 }
 
 export default function CheckoutModal({ items, total, onClose, onConfirm }: CheckoutModalProps) {
-  const [name, setName] = useState('');
-  const [phone, setPhone] = useState('');
-  const [address, setAddress] = useState('');
-  const [comment, setComment] = useState('');
+  const [formData, setFormData] = useState({
+    customer_name: '',
+    customer_phone: '',
+    customer_email: '',
+    customer_address: '',
+    customer_comment: '',
+    type: 'delivery' as 'delivery' | 'pickup'
+  });
   const [showReceipt, setShowReceipt] = useState(false);
+  const [loading, setLoading] = useState(false);
 
-  const handleSubmit = (e: React.FormEvent) => {
+  const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
-    
-    const orderData: OrderData = {
-      name,
-      phone,
-      address,
-      comment,
-      items,
-      total
-    };
+    setLoading(true);
 
-    onConfirm(orderData);
-    setShowReceipt(true);
+    try {
+      const orderData: OrderFormData = {
+        ...formData,
+        items,
+        total_price: total,
+      };
+
+      onConfirm(orderData);
+      setShowReceipt(true);
+    } catch (error) {
+      console.error('Error submitting order:', error);
+      alert('Ошибка при оформлении заказа');
+    } finally {
+      setLoading(false);
+    }
   };
 
   if (showReceipt) {
@@ -68,15 +73,15 @@ export default function CheckoutModal({ items, total, onClose, onConfirm }: Chec
               <div className="space-y-3 mb-4">
                 <div className="flex justify-between text-sm">
                   <span className="text-slate-400">Имя:</span>
-                  <span className="text-white font-medium">{name}</span>
+                  <span className="text-white font-medium">{formData.customer_name}</span>
                 </div>
                 <div className="flex justify-between text-sm">
                   <span className="text-slate-400">Телефон:</span>
-                  <span className="text-white font-medium">{phone}</span>
+                  <span className="text-white font-medium">{formData.customer_phone}</span>
                 </div>
                 <div className="flex justify-between text-sm">
                   <span className="text-slate-400">Адрес:</span>
-                  <span className="text-white font-medium text-right">{address}</span>
+                  <span className="text-white font-medium text-right">{formData.customer_address}</span>
                 </div>
               </div>
 
@@ -88,7 +93,7 @@ export default function CheckoutModal({ items, total, onClose, onConfirm }: Chec
                       {item.emoji} {item.name} x{item.quantity}
                     </span>
                     <span className="text-white font-medium">
-                      {(item.price * item.quantity).toLocaleString('ru-RU')} ₽
+                      {item.total.toLocaleString('ru-RU')} ₽
                     </span>
                   </div>
                 ))}
@@ -140,10 +145,10 @@ export default function CheckoutModal({ items, total, onClose, onConfirm }: Chec
             </label>
             <input
               type="text"
-              value={name}
-              onChange={(e) => setName(e.target.value)}
+              value={formData.customer_name}
+              onChange={(e) => setFormData({ ...formData, customer_name: e.target.value })}
               required
-              className="w-full bg-slate-800/50 border border-slate-700 rounded-xl px-4 py-3 text-white focus:border-blue-500 focus:outline-none transition-colors text-sm sm:text-base"
+              className="w-full bg-slate-800/50 border border-slate-700 rounded-xl px-4 py-3 text-white focus:outline-none focus:border-blue-500 transition-colors text-sm sm:text-base"
               placeholder="Введите ваше имя"
             />
           </div>
@@ -155,11 +160,25 @@ export default function CheckoutModal({ items, total, onClose, onConfirm }: Chec
             </label>
             <input
               type="tel"
-              value={phone}
-              onChange={(e) => setPhone(e.target.value)}
+              value={formData.customer_phone}
+              onChange={(e) => setFormData({ ...formData, customer_phone: e.target.value })}
               required
-              className="w-full bg-slate-800/50 border border-slate-700 rounded-xl px-4 py-3 text-white focus:border-blue-500 focus:outline-none transition-colors text-sm sm:text-base"
-              placeholder="+7 (___) ___-__-__"
+              className="w-full bg-slate-800/50 border border-slate-700 rounded-xl px-4 py-3 text-white focus:outline-none focus:border-blue-500 transition-colors text-sm sm:text-base"
+              placeholder="+7 (999) 123-45-67"
+            />
+          </div>
+
+          <div>
+            <label className="block text-slate-300 mb-2 text-sm font-medium flex items-center gap-2">
+              <Mail className="w-4 h-4" />
+              Email (необязательно)
+            </label>
+            <input
+              type="email"
+              value={formData.customer_email}
+              onChange={(e) => setFormData({ ...formData, customer_email: e.target.value })}
+              className="w-full bg-slate-800/50 border border-slate-700 rounded-xl px-4 py-3 text-white focus:outline-none focus:border-blue-500 transition-colors text-sm sm:text-base"
+              placeholder="example@email.com"
             />
           </div>
 
@@ -170,10 +189,10 @@ export default function CheckoutModal({ items, total, onClose, onConfirm }: Chec
             </label>
             <input
               type="text"
-              value={address}
-              onChange={(e) => setAddress(e.target.value)}
+              value={formData.customer_address}
+              onChange={(e) => setFormData({ ...formData, customer_address: e.target.value })}
               required
-              className="w-full bg-slate-800/50 border border-slate-700 rounded-xl px-4 py-3 text-white focus:border-blue-500 focus:outline-none transition-colors text-sm sm:text-base"
+              className="w-full bg-slate-800/50 border border-slate-700 rounded-xl px-4 py-3 text-white focus:outline-none focus:border-blue-500 transition-colors text-sm sm:text-base"
               placeholder="Улица, дом, квартира"
             />
           </div>
@@ -183,8 +202,8 @@ export default function CheckoutModal({ items, total, onClose, onConfirm }: Chec
               Комментарий к заказу
             </label>
             <textarea
-              value={comment}
-              onChange={(e) => setComment(e.target.value)}
+              value={formData.customer_comment}
+              onChange={(e) => setFormData({ ...formData, customer_comment: e.target.value })}
               rows={3}
               className="w-full bg-slate-800/50 border border-slate-700 rounded-xl px-4 py-3 text-white focus:border-blue-500 focus:outline-none transition-colors resize-none text-sm sm:text-base"
               placeholder="Дополнительная информация..."
@@ -206,10 +225,20 @@ export default function CheckoutModal({ items, total, onClose, onConfirm }: Chec
 
           <button
             type="submit"
-            className="w-full bg-gradient-to-r from-blue-500 to-cyan-500 text-white py-3 sm:py-4 rounded-xl font-bold text-base sm:text-lg hover:from-blue-600 hover:to-cyan-600 transition-all duration-300 flex items-center justify-center space-x-2 hover:shadow-lg hover:shadow-blue-500/50 active:scale-98"
+            disabled={loading}
+            className="w-full bg-gradient-to-r from-blue-500 to-cyan-500 text-white py-3 sm:py-4 rounded-xl font-bold text-base sm:text-lg hover:from-blue-600 hover:to-cyan-600 transition-all duration-300 flex items-center justify-center space-x-2 hover:shadow-lg hover:shadow-blue-500/50 active:scale-98 disabled:opacity-50 disabled:cursor-not-allowed"
           >
-            <Check className="w-5 h-5 sm:w-6 sm:h-6" />
-            <span>Подтвердить заказ</span>
+            {loading ? (
+              <>
+                <div className="w-5 h-5 border-2 border-white border-t-transparent rounded-full animate-spin"></div>
+                <span>Обработка...</span>
+              </>
+            ) : (
+              <>
+                <Check className="w-5 h-5 sm:w-6 sm:h-6" />
+                <span>Подтвердить заказ</span>
+              </>
+            )}
           </button>
         </form>
       </div>

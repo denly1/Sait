@@ -1,6 +1,6 @@
 import { useState, useEffect } from 'react';
 import { X, Users, ShoppingBag, DollarSign, Calendar, BarChart3, Plus, Edit, Trash2, Download } from 'lucide-react';
-import { supabase } from '../lib/supabase';
+import { storage } from '../lib/localStorage';
 
 interface AdminPanelEnhancedProps {
   onClose: () => void;
@@ -26,28 +26,25 @@ export default function AdminPanelEnhanced({ onClose }: AdminPanelEnhancedProps)
 
   const loadData = async () => {
     try {
-      const [escortsRes, productsRes, ordersRes, bookingsRes] = await Promise.all([
-        supabase.from('escorts').select('*'),
-        supabase.from('products').select('*'),
-        supabase.from('orders').select('*'),
-        supabase.from('bookings').select('*'),
-      ]);
+      const escorts = storage.getEscorts();
+      const orders = storage.getOrders();
+      const bookings = storage.getBookings();
 
-      setEscorts(escortsRes.data || []);
-      setProducts(productsRes.data || []);
-      setOrders(ordersRes.data || []);
-      setBookings(bookingsRes.data || []);
+      setEscorts(escorts || []);
+      setProducts([]); // Пока пустой массив для продуктов
+      setOrders(orders || []);
+      setBookings(bookings || []);
 
       const totalRevenue = [
-        ...(bookingsRes.data || []).map((b: any) => b.total_price || 0),
-        ...(ordersRes.data || []).map((o: any) => o.total_price || 0)
+        ...(bookings || []).map((b: any) => b.total_price || 0),
+        ...(orders || []).map((o: any) => o.total_price || 0)
       ].reduce((sum, price) => sum + price, 0);
 
       setStats({
-        totalBookings: bookingsRes.data?.length || 0,
-        totalOrders: ordersRes.data?.length || 0,
+        totalBookings: bookings?.length || 0,
+        totalOrders: orders?.length || 0,
         totalRevenue,
-        activeEscorts: escortsRes.data?.filter((e: any) => e.available).length || 0,
+        activeEscorts: escorts?.filter((e: any) => e.available).length || 0,
       });
     } catch (error) {
       console.error('Error loading data:', error);
@@ -58,8 +55,10 @@ export default function AdminPanelEnhanced({ onClose }: AdminPanelEnhancedProps)
 
   const deleteEscort = async (id: string) => {
     if (!confirm('Удалить этого эскорта?')) return;
+    
     try {
-      await supabase.from('escorts').delete().eq('id', id);
+      // TODO: Реализовать удаление в localStorage
+      console.log('Delete escort:', id);
       loadData();
     } catch (error) {
       console.error('Error deleting escort:', error);
@@ -68,8 +67,10 @@ export default function AdminPanelEnhanced({ onClose }: AdminPanelEnhancedProps)
 
   const deleteProduct = async (id: string) => {
     if (!confirm('Удалить этот товар?')) return;
+    
     try {
-      await supabase.from('products').delete().eq('id', id);
+      // TODO: Реализовать удаление в localStorage
+      console.log('Delete product:', id);
       loadData();
     } catch (error) {
       console.error('Error deleting product:', error);
@@ -78,11 +79,23 @@ export default function AdminPanelEnhanced({ onClose }: AdminPanelEnhancedProps)
 
   const deleteOrder = async (id: string) => {
     if (!confirm('Удалить этот заказ?')) return;
+    
     try {
-      await supabase.from('orders').delete().eq('id', id);
+      // TODO: Реализовать удаление в localStorage
+      console.log('Delete order:', id);
       loadData();
     } catch (error) {
       console.error('Error deleting order:', error);
+    }
+  };
+
+  const updateOrderStatus = async (id: string, status: string) => {
+    try {
+      // TODO: Реализовать обновление в localStorage
+      console.log('Update order status:', id, status);
+      loadData();
+    } catch (error) {
+      console.error('Error updating order:', error);
     }
   };
 

@@ -1,4 +1,4 @@
-// Локальное хранилище данных (замена Supabase)
+// Локальное хранилище данных v2.0 (улучшенная версия)
 
 export interface Escort {
   id: string;
@@ -9,7 +9,10 @@ export interface Escort {
   image_url: string;
   rating: number;
   available: boolean;
-  created_at?: string;
+  created_at: string;
+  services?: string[];
+  location?: string;
+  phone?: string;
 }
 
 export interface CasinoGame {
@@ -21,7 +24,9 @@ export interface CasinoGame {
   max_bet: number;
   image_url: string;
   active: boolean;
-  created_at?: string;
+  created_at: string;
+  rtp?: number;
+  max_win?: number;
 }
 
 export interface Product {
@@ -30,36 +35,106 @@ export interface Product {
   description: string;
   price: number;
   category: string;
-  image_url?: string;
+  image_url: string;
   in_stock: boolean;
-  quantity?: number;
-  emoji?: string;
-  created_at?: string;
+  quantity: number;
+  emoji: string;
+  created_at: string;
+  discount?: number;
+  tags?: string[];
 }
 
 export interface Booking {
-  id?: string;
+  id: string;
   escort_id: string;
   customer_name: string;
   customer_phone: string;
+  customer_email?: string;
   booking_date: string;
   duration: number;
   total_price: number;
-  status?: string;
-  created_at?: string;
+  status: 'pending' | 'confirmed' | 'completed' | 'cancelled';
+  created_at: string;
+  notes?: string;
 }
 
 export interface Order {
-  id?: string;
+  id: string;
   customer_name: string;
   customer_phone: string;
+  customer_email?: string;
   customer_address?: string;
   customer_comment?: string;
-  items: any[];
+  items: OrderItem[];
   total_price: number;
-  status?: string;
-  type?: string;
-  created_at?: string;
+  status: 'pending' | 'processing' | 'shipped' | 'delivered' | 'cancelled';
+  type: 'delivery' | 'pickup';
+  created_at: string;
+  delivery_date?: string;
+}
+
+export interface OrderItem {
+  id: string;
+  name: string;
+  price: number;
+  quantity: number;
+  total: number;
+  emoji?: string;
+}
+
+export interface AnalyticsEvent {
+  id: string;
+  event_type: 'page_view' | 'login' | 'order' | 'click' | 'wheel_spin' | 'chat_message';
+  user_id?: string;
+  ip_address?: string;
+  user_agent?: string;
+  page_url?: string;
+  metadata?: Record<string, any>;
+  created_at: string;
+}
+
+export interface Notification {
+  id: string;
+  title: string;
+  message: string;
+  type: 'info' | 'success' | 'warning' | 'error';
+  user_id?: string;
+  read: boolean;
+  action_url?: string;
+  created_at: string;
+  expires_at?: string;
+}
+
+export interface Review {
+  id: string;
+  user_id?: string;
+  username: string;
+  rating: number;
+  text: string;
+  service: string;
+  likes: number;
+  created_at: string;
+  verified: boolean;
+}
+
+export interface LoyaltyTransaction {
+  id: string;
+  user_id: string;
+  points_change: number;
+  reason: string;
+  type: 'earned' | 'spent' | 'bonus' | 'refund';
+  metadata?: Record<string, any>;
+  created_at: string;
+}
+
+export interface SupportMessage {
+  id: string;
+  user_id: string;
+  message: string;
+  sender: 'user' | 'support' | 'bot';
+  read: boolean;
+  created_at: string;
+  attachments?: string[];
 }
 
 // Локальное хранилище
@@ -92,7 +167,10 @@ class LocalStorage {
         price: 5000,
         rating: 4.9,
         available: true,
-        image_url: ''
+        image_url: '',
+        created_at: new Date().toISOString(),
+        services: ['Сопровождение', 'Деловые встречи'],
+        location: 'Центр города'
       },
       {
         id: '2',
@@ -102,7 +180,10 @@ class LocalStorage {
         price: 6000,
         rating: 4.8,
         available: true,
-        image_url: ''
+        image_url: '',
+        created_at: new Date().toISOString(),
+        services: ['Фотосессии', 'Показы мод'],
+        location: 'Любой район'
       },
       {
         id: '3',
@@ -112,7 +193,10 @@ class LocalStorage {
         price: 7000,
         rating: 5.0,
         available: true,
-        image_url: ''
+        image_url: '',
+        created_at: new Date().toISOString(),
+        services: ['Вечеринки', 'События'],
+        location: 'Центр'
       },
       {
         id: '4',
@@ -122,7 +206,10 @@ class LocalStorage {
         price: 8000,
         rating: 4.7,
         available: false,
-        image_url: ''
+        image_url: '',
+        created_at: new Date().toISOString(),
+        services: ['Деловые встречи', 'Переговоры'],
+        location: 'Деловой центр'
       },
       {
         id: '5',
@@ -132,7 +219,11 @@ class LocalStorage {
         price: 12000,
         rating: 5.0,
         available: true,
-        image_url: ''
+        image_url: '',
+        created_at: new Date().toISOString(),
+        services: ['VIP сопровождение', 'Эксклюзив'],
+        location: 'По договоренности',
+        phone: '+7 (999) 123-45-67'
       },
     ]);
   }
@@ -142,9 +233,9 @@ class LocalStorage {
     return this.getItem('bookings', []);
   }
 
-  addBooking(booking: Booking): void {
+  addBooking(booking: Omit<Booking, 'id' | 'status' | 'created_at'>): void {
     const bookings = this.getBookings();
-    const newBooking = {
+    const newBooking: Booking = {
       ...booking,
       id: Date.now().toString(),
       status: 'pending',
@@ -159,21 +250,21 @@ class LocalStorage {
     return this.getItem('orders', []);
   }
 
-  addOrder(order: Order): void {
+  addOrder(order: Omit<Order, 'id' | 'status' | 'created_at'>): void {
     const orders = this.getOrders();
-    const newOrder = {
+    const newOrder: Order = {
       ...order,
       id: Date.now().toString(),
       status: 'pending',
       created_at: new Date().toISOString()
     };
     orders.push(newOrder);
-    this.setItem('orders', newOrder);
+    this.setItem('orders', orders);
   }
 
   // Analytics
   logEvent(event: any): void {
-    const events = this.getItem('analytics_events', []);
+    const events = this.getItem('analytics_events', [] as any[]);
     events.push({
       ...event,
       id: Date.now().toString(),
@@ -187,7 +278,7 @@ class LocalStorage {
   }
 
   getAnalytics(): any[] {
-    return this.getItem('analytics_events', []);
+    return this.getItem('analytics_events', [] as any[]);
   }
 
   // Reviews
@@ -206,13 +297,13 @@ class LocalStorage {
   }
 
   // Loyalty
-  getLoyaltyPoints(userId: string): any {
-    const loyalty = this.getItem('loyalty_points', {});
+  getLoyaltyPoints(userId: string): { points: number; level: string; updated_at?: string } {
+    const loyalty = this.getItem('loyalty_points', {} as Record<string, any>);
     return loyalty[userId] || { points: 0, level: 'Бронза' };
   }
 
   updateLoyaltyPoints(userId: string, points: number): void {
-    const loyalty = this.getItem('loyalty_points', {});
+    const loyalty = this.getItem('loyalty_points', {} as Record<string, any>);
     loyalty[userId] = {
       points,
       level: points >= 5000 ? 'Платина' : points >= 2000 ? 'Золото' : points >= 1000 ? 'Серебро' : 'Бронза',
@@ -223,12 +314,12 @@ class LocalStorage {
 
   // Support messages
   getMessages(userId: string): any[] {
-    const messages = this.getItem('support_messages', {});
+    const messages = this.getItem('support_messages', {} as Record<string, any[]>);
     return messages[userId] || [];
   }
 
   addMessage(userId: string, message: any): void {
-    const messages = this.getItem('support_messages', {});
+    const messages = this.getItem('support_messages', {} as Record<string, any[]>);
     if (!messages[userId]) {
       messages[userId] = [];
     }
@@ -242,12 +333,12 @@ class LocalStorage {
 
   // Wheel wins
   getWheelWins(userId: string): any[] {
-    const wins = this.getItem('wheel_wins', {});
+    const wins = this.getItem('wheel_wins', {} as Record<string, any[]>);
     return wins[userId] || [];
   }
 
   addWheelWin(userId: string, win: any): void {
-    const wins = this.getItem('wheel_wins', {});
+    const wins = this.getItem('wheel_wins', {} as Record<string, any[]>);
     if (!wins[userId]) {
       wins[userId] = [];
     }

@@ -1,8 +1,8 @@
 import { useState, useEffect } from 'react';
 import { Package, ShoppingCart, CheckCircle2 } from 'lucide-react';
-import { Product, supabase } from '../lib/supabase';
+import { Product, storage, OrderItem } from '../lib/localStorage';
 import Cart from './Cart';
-import CheckoutModal, { OrderData } from './CheckoutModal';
+import CheckoutModal, { OrderFormData } from './CheckoutModal';
 import { allProducts, categories as productCategories } from '../data/products';
 
 interface CartItem {
@@ -10,6 +10,7 @@ interface CartItem {
   name: string;
   price: number;
   quantity: number;
+  total: number;
   emoji?: string;
   category: string;
 }
@@ -48,7 +49,7 @@ export default function ProductsSection() {
     if (existingItem) {
       setCart(cart.map(item =>
         item.id === product.id
-          ? { ...item, quantity: item.quantity + 1 }
+          ? { ...item, quantity: item.quantity + 1, total: item.price * (item.quantity + 1) }
           : item
       ));
     } else {
@@ -57,6 +58,7 @@ export default function ProductsSection() {
         name: product.name,
         price: product.price,
         quantity: 1,
+        total: product.price,
         emoji: (product as any).emoji,
         category: product.category
       }]);
@@ -65,7 +67,7 @@ export default function ProductsSection() {
 
   const updateCartQuantity = (id: string, quantity: number) => {
     setCart(cart.map(item =>
-      item.id === id ? { ...item, quantity } : item
+      item.id === id ? { ...item, quantity, total: item.price * quantity } : item
     ));
   };
 
@@ -78,21 +80,10 @@ export default function ProductsSection() {
     setShowCheckout(true);
   };
 
-  const handleConfirmOrder = async (orderData: OrderData) => {
+  const handleConfirmOrder = async (orderData: OrderFormData) => {
     try {
-      // Сохраняем заказ в базу данных
-      const { error } = await supabase.from('orders').insert({
-        user_phone: orderData.phone,
-        user_name: orderData.name,
-        delivery_address: orderData.address,
-        comment: orderData.comment,
-        items: orderData.items,
-        total: orderData.total,
-        status: 'pending',
-        type: 'product'
-      });
-
-      if (error) throw error;
+      // Сохраняем заказ в localStorage
+      storage.addOrder(orderData);
 
       // Очищаем корзину
       setCart([]);
